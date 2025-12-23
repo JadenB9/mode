@@ -2,12 +2,21 @@
 name = "mode"
 version = "0.1.0"
 edition = "2021"
-authors = ["JadenB9"]
-description = "A professional terminal utility manager with TUI interface"
+authors = ["JadenB9 <jadenb9944@gmail.com>"]
+description = "A blazing-fast terminal utility manager with beautiful TUI - manage aliases, processes, and shell configurations"
 license = "MIT"
 repository = "https://github.com/JadenB9/mode"
-keywords = ["cli", "tui", "terminal", "utility"]
+homepage = "https://github.com/JadenB9/mode"
+readme = "README.md"
+keywords = ["cli", "tui", "terminal", "utility", "shell"]
 categories = ["command-line-utilities"]
+exclude = [
+    "target/",
+    ".git/",
+    ".github/",
+    "*.md",
+    "docs/",
+]
 
 [dependencies]
 # TUI Framework

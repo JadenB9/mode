@@ -54,28 +54,42 @@ A professional, blazing-fast terminal utility manager with a beautiful TUI inter
 
 ### Installation
 
-#### One-Liner Installation (Easiest)
+Choose your preferred method:
+
+#### 🚀 Quick Install (One Command)
 
 ```bash
-git clone https://github.com/JadenB9/mode.git && cd mode && ./install.sh && source ~/.bashrc && mode
+curl -sSL https://raw.githubusercontent.com/JadenB9/mode/main/quick-install.sh | bash
 ```
 
-**For the truly lazy** (downloads to temp directory, installs, then cleans up):
+Then reload your shell: `source ~/.bashrc` (or open a new terminal)
+
+#### 📦 Using Cargo (if you have Rust installed)
 
 ```bash
-cd /tmp && git clone https://github.com/JadenB9/mode.git && cd mode && ./install.sh && cd ~ && source ~/.bashrc && mode
+cargo install --git https://github.com/JadenB9/mode.git
 ```
 
-The install script automatically handles everything:
-- **Installs Rust** if not present (via rustup)
-- **Installs build tools** (gcc/build-essential) if needed
-- **Builds MODE** in release mode
-- **Installs the binary** to `~/.local/bin`
-- **Adds to PATH** if not already there
-- **Sets up shell integration** for seamless alias/bookmark functionality
-- **Returns you to your original directory**
+**Coming soon:** `cargo install mode` (once published to crates.io)
 
-After installation, just type `mode` from anywhere!
+#### 🔧 From Source (Full Control)
+
+```bash
+git clone https://github.com/JadenB9/mode.git && cd mode && ./install.sh
+```
+
+---
+
+**What the installer does automatically:**
+- ✅ Installs Rust if not present (via rustup)
+- ✅ Installs build tools (gcc/build-essential) if needed
+- ✅ Builds MODE in release mode
+- ✅ Installs the binary to `~/.local/bin`
+- ✅ Adds to PATH if not already there
+- ✅ Sets up shell integration for seamless alias/bookmark functionality
+- ✅ Returns you to your original directory
+
+**After installation:** Just type `mode` from anywhere!
 
 #### Option 2: Manual installation
 
