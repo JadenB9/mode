@@ -212,14 +212,19 @@ impl AliasManager {
                 "Enter command (e.g., 'ls -la', 'git status'):".to_string()
             }
             AliasManagerState::Confirming { name, command } => {
-                format!(
-                    "Create this alias?\n\nalias {}='{}'\n\n[Y]es / [N]o",
-                    name, command
-                )
+                format!("{}\n{}", name, command)
             }
             AliasManagerState::Processing => "Creating alias...".to_string(),
             AliasManagerState::Success { message } => message.clone(),
             AliasManagerState::Error { message } => format!("Error: {}", message),
+        }
+    }
+
+    /// Gets confirmation data for structured display
+    pub fn get_confirmation_data(&self) -> Option<(String, String)> {
+        match &self.state {
+            AliasManagerState::Confirming { name, command } => Some((name.clone(), command.clone())),
+            _ => None,
         }
     }
 
@@ -230,6 +235,11 @@ impl AliasManager {
             AliasManagerState::EnteringCommand { input, .. } => input.clone(),
             _ => String::new(),
         }
+    }
+
+    /// Gets the RC file path
+    pub fn get_rc_file(&self) -> Option<&PathBuf> {
+        self.rc_file.as_ref()
     }
 }
 

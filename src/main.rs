@@ -50,5 +50,16 @@ fn run(terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> Result<(), Box<
         }
     }
 
+    // If there's an exit command, write it to a file for shell integration
+    if let Some(exit_cmd) = &app.exit_command {
+        use std::io::Write;
+        if let Ok(home) = std::env::var("HOME") {
+            let cmd_file = format!("{}/.mode_exit_cmd", home);
+            if let Ok(mut file) = std::fs::File::create(&cmd_file) {
+                let _ = writeln!(file, "{}", exit_cmd);
+            }
+        }
+    }
+
     Ok(())
 }

@@ -11,14 +11,14 @@
 
 A professional, blazing-fast terminal utility manager with a beautiful TUI interface. Built with Rust and ratatui for smooth, stutter-free performance.
 
-## ✨ Features
+## Features
 
-- **🎨 Beautiful TUI**: Professional color scheme with smooth navigation
-- **⚡ Blazing Fast**: Built with Rust for maximum performance (< 100ms startup time)
-- **🛡️ Safe Operations**: Automatic backups before any file modifications
-- **🐚 Multi-Shell Support**: Works with both bash and zsh
-- **⌨️ Intuitive Controls**: Arrow keys, vim keys, or mouse navigation
-- **📦 Modular Design**: Easy to extend with new features
+- **Beautiful TUI**: Professional color scheme with smooth navigation
+- **Blazing Fast**: Built with Rust for maximum performance (< 100ms startup time)
+- **Safe Operations**: Automatic backups before any file modifications
+- **Multi-Shell Support**: Works with both bash and zsh
+- **Intuitive Controls**: Arrow keys, vim keys, or mouse navigation
+- **Modular Design**: Easy to extend with new features
 
 ### Active Features
 
@@ -27,6 +27,19 @@ A professional, blazing-fast terminal utility manager with a beautiful TUI inter
   - Checks for duplicates
   - Creates timestamped backups
   - Safe atomic file operations
+
+- **Process Manager**: Kill lingering development processes
+  - Cursor servers
+  - Claude Code servers
+  - Common development servers (vite, webpack, etc.)
+
+- **Bookmark Directory**: Save current directory as 'temp' alias
+  - Quick temporary directory bookmarking
+  - Instant shell integration with wrapper scripts
+
+- **Usage Viewer**: View Claude API usage statistics
+  - Opens usage dashboard in browser
+  - Quick access to API metrics
 
 ### Coming Soon
 
@@ -37,7 +50,7 @@ A professional, blazing-fast terminal utility manager with a beautiful TUI inter
 - System Info Display
 - Settings & Configuration
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Installation
 
@@ -74,7 +87,7 @@ Simply run:
 mode
 ```
 
-## 🎮 Usage
+## Usage
 
 ### Navigation
 
@@ -96,7 +109,7 @@ mode
    - Safely append the alias
    - Show you how to reload your shell
 
-## 🏗️ Architecture
+## Architecture
 
 MODE is built with a clean, modular architecture:
 
@@ -116,7 +129,7 @@ mode/
 └── README.md             # This file
 ```
 
-## 🛠️ Development
+## Development
 
 ### Building from Source
 
@@ -150,7 +163,7 @@ cargo run
 - **Shell Detection**: Automatically detects bash or zsh from `$SHELL`
 - **Input Validation**: Validates alias names against shell reserved keywords
 
-## 🧪 Testing
+## Testing
 
 Run the test suite:
 
@@ -167,7 +180,7 @@ Manual testing checklist:
 - ✅ Terminal resize handling
 - ✅ All navigation methods (arrows, vim keys, mouse)
 
-## 📝 Examples
+## Examples
 
 ### Creating a Git Alias
 
@@ -198,7 +211,7 @@ gs  # Same as: git status
 # Command: sudo apt update && sudo apt upgrade -y
 ```
 
-## 🔒 Security & Safety
+## Security & Safety
 
 - **Automatic Backups**: Every file modification creates a timestamped backup
 - **Atomic Operations**: Uses temporary files and atomic renames
@@ -206,7 +219,7 @@ gs  # Same as: git status
 - **No Remote Access**: Completely offline, no network requests
 - **Permission Checks**: Verifies file writability before modifications
 
-## 🎨 Theme
+## Theme
 
 MODE uses a professional color scheme optimized for terminal viewing:
 
@@ -216,14 +229,14 @@ MODE uses a professional color scheme optimized for terminal viewing:
 - **Success**: Green (#A6E3A1)
 - **Error**: Red (#F38BA8)
 
-## 📊 Performance
+## Performance
 
 - **Startup Time**: < 100ms
 - **Input Latency**: < 16ms (60 FPS)
 - **Memory Usage**: < 5MB
 - **Binary Size**: < 2MB (stripped release)
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
@@ -233,21 +246,21 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📜 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 👤 Author
+## Author
 
 **JadenB9**
 - GitHub: [@JadenB9](https://github.com/JadenB9)
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - Built with [ratatui](https://github.com/ratatui-org/ratatui) - An amazing TUI framework
 - Powered by [crossterm](https://github.com/crossterm-rs/crossterm) - Cross-platform terminal manipulation
 
-## 📞 Support
+## Support
 
 If you encounter any issues or have questions:
 - Open an issue on [GitHub](https://github.com/JadenB9/mode/issues)
@@ -255,4 +268,4 @@ If you encounter any issues or have questions:
 
 ---
 
-Made with ❤️ and Rust
+Made with Rust

@@ -102,8 +102,6 @@ fn render_menu_items(frame: &mut Frame, area: Rect, menu_state: &MenuState) {
 fn render_help(frame: &mut Frame, area: Rect) {
     let help_text = Line::from(vec![
         Span::styled("↑/↓", Theme::accent()),
-        Span::styled(" or ", Theme::help()),
-        Span::styled("j/k", Theme::accent()),
         Span::styled(": Navigate  ", Theme::help()),
         Span::styled("Enter", Theme::accent()),
         Span::styled(": Select  ", Theme::help()),

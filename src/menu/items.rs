@@ -3,12 +3,12 @@
 pub enum MenuItem {
     /// Alias Manager - Active feature for managing shell aliases
     AliasManager,
-    /// Environment Variables - Placeholder for managing shell exports
-    EnvironmentVariables,
-    /// PATH Manager - Placeholder for managing PATH entries
-    PathManager,
-    /// SSH Config Manager - Placeholder for managing ~/.ssh/config
-    SshConfigManager,
+    /// Process Manager - Active feature for killing lingering processes
+    ProcessManager,
+    /// Bookmark - Active feature for temporary directory bookmarking
+    Bookmark,
+    /// Usage Viewer - Active feature for viewing Claude API usage
+    UsageViewer,
     /// Git Shortcuts - Placeholder for managing git aliases
     GitShortcuts,
     /// System Info - Placeholder for displaying system information
@@ -22,9 +22,9 @@ impl MenuItem {
     pub fn all() -> Vec<MenuItem> {
         vec![
             MenuItem::AliasManager,
-            MenuItem::EnvironmentVariables,
-            MenuItem::PathManager,
-            MenuItem::SshConfigManager,
+            MenuItem::ProcessManager,
+            MenuItem::Bookmark,
+            MenuItem::UsageViewer,
             MenuItem::GitShortcuts,
             MenuItem::SystemInfo,
             MenuItem::Settings,
@@ -35,9 +35,9 @@ impl MenuItem {
     pub fn name(&self) -> &'static str {
         match self {
             MenuItem::AliasManager => "Alias Manager",
-            MenuItem::EnvironmentVariables => "Coming soon",
-            MenuItem::PathManager => "Coming soon",
-            MenuItem::SshConfigManager => "Coming soon",
+            MenuItem::ProcessManager => "Process Manager",
+            MenuItem::Bookmark => "Bookmark Directory",
+            MenuItem::UsageViewer => "Usage Viewer",
             MenuItem::GitShortcuts => "Coming soon",
             MenuItem::SystemInfo => "Coming soon",
             MenuItem::Settings => "Coming soon",
@@ -48,9 +48,9 @@ impl MenuItem {
     pub fn description(&self) -> &'static str {
         match self {
             MenuItem::AliasManager => "Create and manage shell aliases",
-            MenuItem::EnvironmentVariables => "Coming soon",
-            MenuItem::PathManager => "Coming soon",
-            MenuItem::SshConfigManager => "Coming soon",
+            MenuItem::ProcessManager => "Kill lingering dev server processes",
+            MenuItem::Bookmark => "Save current directory as 'temp' alias",
+            MenuItem::UsageViewer => "View Claude API usage in browser",
             MenuItem::GitShortcuts => "Coming soon",
             MenuItem::SystemInfo => "Coming soon",
             MenuItem::Settings => "Coming soon",
@@ -59,7 +59,7 @@ impl MenuItem {
 
     /// Returns whether the menu item is active (implemented)
     pub fn is_active(&self) -> bool {
-        matches!(self, MenuItem::AliasManager)
+        matches!(self, MenuItem::AliasManager | MenuItem::ProcessManager | MenuItem::Bookmark | MenuItem::UsageViewer)
     }
 
     /// Returns the total number of menu items

@@ -116,6 +116,59 @@ pub fn render_message_dialog(
     frame.render_widget(text, centered);
 }
 
+/// Renders a professional confirmation dialog with highlighted key information
+pub fn render_confirmation_dialog(
+    frame: &mut Frame,
+    area: Rect,
+    title: &str,
+    header: &str,
+    key_info: Vec<(&str, &str)>, // (label, value) pairs
+    question: &str,
+) {
+    // Create centered area for dialog
+    let dialog_width = area.width.min(80);
+    let dialog_height = area.height.min(25);
+
+    let centered = centered_rect(dialog_width, dialog_height, area);
+
+    let block = Block::default()
+        .borders(Borders::ALL)
+        .title(title)
+        .border_style(Theme::accent());
+
+    // Build the content lines
+    let mut lines = vec![];
+
+    // Header line
+    lines.push(Line::from(Span::styled(header, Theme::secondary())));
+    lines.push(Line::from(""));
+
+    // Key information with labels and values
+    for (label, value) in key_info {
+        lines.push(Line::from(vec![
+            Span::styled(format!("{}: ", label), Theme::dim()),
+            Span::styled(value, Theme::accent()),
+        ]));
+    }
+
+    lines.push(Line::from(""));
+    lines.push(Line::from(Span::styled(
+        "─".repeat(dialog_width.saturating_sub(4) as usize),
+        Theme::dim(),
+    )));
+    lines.push(Line::from(""));
+
+    // Question
+    lines.push(Line::from(Span::styled(question, Theme::text())));
+
+    let text = Paragraph::new(lines)
+        .block(block)
+        .wrap(Wrap { trim: true })
+        .alignment(Alignment::Left);
+
+    frame.render_widget(text, centered);
+}
+
 /// Helper to create a centered rectangle
 fn centered_rect(width: u16, height: u16, area: Rect) -> Rect {
     let horizontal_margin = area.width.saturating_sub(width) / 2;

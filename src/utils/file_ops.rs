@@ -43,6 +43,78 @@ pub fn check_duplicate_alias(rc_file: &Path, alias_name: &str) -> Result<bool> {
     Ok(false)
 }
 
+/// Removes an alias from the RC file if it exists
+///
+/// This function removes all lines that define the specified alias
+pub fn remove_alias(rc_file: &Path, alias_name: &str) -> Result<()> {
+    // Read current content
+    let content = fs::read_to_string(rc_file)?;
+
+    // Filter out lines that define this alias
+    let alias_pattern = format!("alias {}=", alias_name);
+    let mut new_lines = Vec::new();
+    let mut skip_next_comment = false;
+
+    for line in content.lines() {
+        let trimmed = line.trim();
+
+        // Check if this is the "Added by mode" comment for this alias
+        if trimmed.starts_with("# Added by mode") {
+            skip_next_comment = true;
+            continue;
+        }
+
+        // Check if this line defines the alias we want to remove
+        if trimmed.starts_with(&alias_pattern) {
+            skip_next_comment = false;
+            continue;
+        }
+
+        // If we skipped a comment but the next line wasn't the alias, keep the comment
+        if skip_next_comment && !trimmed.starts_with(&alias_pattern) {
+            skip_next_comment = false;
+        }
+
+        if !skip_next_comment {
+            new_lines.push(line);
+        }
+    }
+
+    // Write back to file atomically
+    let rc_dir = rc_file.parent().ok_or_else(|| {
+        ModeError::FileOperation("Could not determine RC file directory".to_string())
+    })?;
+
+    let mut temp_file = NamedTempFile::new_in(rc_dir).map_err(|e| {
+        ModeError::FileOperation(format!("Failed to create temporary file: {}", e))
+    })?;
+
+    // Write filtered content
+    for line in new_lines {
+        temp_file
+            .write_all(line.as_bytes())
+            .map_err(|e| ModeError::FileOperation(format!("Failed to write to temp file: {}", e)))?;
+        temp_file
+            .write_all(b"\n")
+            .map_err(|e| ModeError::FileOperation(format!("Failed to write to temp file: {}", e)))?;
+    }
+
+    temp_file
+        .flush()
+        .map_err(|e| ModeError::FileOperation(format!("Failed to flush temp file: {}", e)))?;
+
+    // Atomically replace the original file
+    temp_file.persist(rc_file).map_err(|e| {
+        ModeError::FileOperation(format!(
+            "Failed to persist temp file to {}: {}",
+            rc_file.display(),
+            e
+        ))
+    })?;
+
+    Ok(())
+}
+
 /// Safely appends an alias to the RC file using atomic file operations
 ///
 /// Steps:

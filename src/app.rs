@@ -1,6 +1,6 @@
 use crate::{
     event::Event,
-    features::{AliasManager, AliasManagerState, PlaceholderFeature},
+    features::{AliasManager, AliasManagerState, BookmarkManager, BookmarkManagerState, PlaceholderFeature, ProcessManager, ProcessManagerState, UsageViewer, UsageViewerState},
     menu::{MenuItem, MenuState},
     utils::Result,
 };
@@ -10,6 +10,9 @@ use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 #[derive(Debug)]
 pub enum ActiveFeature {
     AliasManager(AliasManager),
+    ProcessManager(ProcessManager),
+    BookmarkManager(BookmarkManager),
+    UsageViewer(UsageViewer),
     Placeholder(PlaceholderFeature),
 }
 
@@ -34,6 +37,8 @@ pub struct App {
     pub should_quit: bool,
     /// Optional error message
     pub error_message: Option<String>,
+    /// Command to execute on exit (for shell integration)
+    pub exit_command: Option<String>,
 }
 
 impl App {
@@ -44,6 +49,7 @@ impl App {
             menu_state: MenuState::new(),
             should_quit: false,
             error_message: None,
+            exit_command: None,
         }
     }
 
@@ -83,6 +89,31 @@ impl App {
                 match feature {
                     ActiveFeature::AliasManager(manager) => {
                         should_return_to_menu = Self::handle_alias_manager_key_static(key, manager)?;
+
+                        // If alias was successfully created, set exit command to source RC file
+                        if manager.is_done() && matches!(manager.state, crate::features::AliasManagerState::Success { .. }) {
+                            if let Some(rc_file) = manager.get_rc_file() {
+                                self.exit_command = Some(format!("source {}", rc_file.display()));
+                            }
+                        }
+                    }
+                    ActiveFeature::ProcessManager(manager) => {
+                        should_return_to_menu = Self::handle_process_manager_key_static(key, manager)?;
+                    }
+                    ActiveFeature::BookmarkManager(manager) => {
+                        let result = Self::handle_bookmark_manager_key_static(key, manager)?;
+                        should_return_to_menu = result.0;
+
+                        // If bookmark was successful, exit the app and set exit command
+                        if result.1 {
+                            self.should_quit = true;
+                            if let Some(rc_file) = manager.get_rc_file() {
+                                self.exit_command = Some(format!("source {}", rc_file.display()));
+                            }
+                        }
+                    }
+                    ActiveFeature::UsageViewer(viewer) => {
+                        should_return_to_menu = Self::handle_usage_viewer_key_static(key, viewer)?;
                     }
                     ActiveFeature::Placeholder(_) => {
                         // Just ESC to go back
@@ -142,6 +173,26 @@ impl App {
                         self.state = AppState::FeatureActive(ActiveFeature::AliasManager(manager));
                     }
                 }
+                MenuItem::ProcessManager => {
+                    let manager = ProcessManager::new();
+                    self.state = AppState::FeatureActive(ActiveFeature::ProcessManager(manager));
+                }
+                MenuItem::Bookmark => {
+                    let mut manager = BookmarkManager::new();
+                    if let Err(e) = manager.initialize() {
+                        self.error_message = Some(format!("Failed to initialize: {}", e));
+                    } else {
+                        self.state = AppState::FeatureActive(ActiveFeature::BookmarkManager(manager));
+                    }
+                }
+                MenuItem::UsageViewer => {
+                    let mut viewer = UsageViewer::new();
+                    // Immediately open the browser
+                    if let Err(e) = viewer.open_browser() {
+                        self.error_message = Some(format!("Failed to open browser: {}", e));
+                    }
+                    self.state = AppState::FeatureActive(ActiveFeature::UsageViewer(viewer));
+                }
                 _ => {
                     // Should not happen as we check is_active()
                 }
@@ -197,6 +248,120 @@ impl App {
                 }
             }
             _ => {}
+        }
+
+        Ok(return_to_menu)
+    }
+
+    /// Handles keyboard input in process manager (static method to avoid borrow issues)
+    /// Returns true if should return to main menu
+    fn handle_process_manager_key_static(key: KeyEvent, manager: &mut ProcessManager) -> Result<bool> {
+        let mut return_to_menu = false;
+
+        match &manager.state {
+            ProcessManagerState::SelectingAction { .. } => {
+                match key.code {
+                    KeyCode::Up | KeyCode::Char('k') => {
+                        manager.previous();
+                    }
+                    KeyCode::Down | KeyCode::Char('j') => {
+                        manager.next();
+                    }
+                    KeyCode::Enter => {
+                        manager.confirm_selection();
+                    }
+                    KeyCode::Esc => {
+                        return_to_menu = true;
+                    }
+                    _ => {}
+                }
+            }
+            ProcessManagerState::Confirming { .. } => {
+                match key.code {
+                    KeyCode::Char('y') | KeyCode::Char('Y') => {
+                        manager.execute_action();
+                    }
+                    KeyCode::Char('n') | KeyCode::Char('N') | KeyCode::Esc => {
+                        manager.go_back();
+                    }
+                    _ => {}
+                }
+            }
+            ProcessManagerState::Success { .. } | ProcessManagerState::Error { .. } => {
+                // Any key returns to main menu
+                if matches!(key.code, KeyCode::Enter | KeyCode::Esc) {
+                    return_to_menu = true;
+                }
+            }
+            _ => {}
+        }
+
+        Ok(return_to_menu)
+    }
+
+    /// Handles keyboard input in bookmark manager (static method to avoid borrow issues)
+    /// Returns (should_return_to_menu, should_exit_app) tuple
+    fn handle_bookmark_manager_key_static(key: KeyEvent, manager: &mut BookmarkManager) -> Result<(bool, bool)> {
+        let mut return_to_menu = false;
+        let mut exit_app = false;
+
+        match &manager.state {
+            BookmarkManagerState::Confirming { .. } => {
+                match key.code {
+                    KeyCode::Enter => {
+                        manager.confirm_bookmark()?;
+                        // Check if we should exit after confirming
+                        if manager.should_exit_app() {
+                            exit_app = true;
+                        }
+                    }
+                    KeyCode::Esc => {
+                        return_to_menu = true;
+                    }
+                    _ => {}
+                }
+            }
+            BookmarkManagerState::Success { .. } => {
+                // Any key exits the app
+                if matches!(key.code, KeyCode::Enter | KeyCode::Esc) {
+                    exit_app = true;
+                }
+            }
+            BookmarkManagerState::Error { .. } => {
+                // Any key returns to main menu
+                if matches!(key.code, KeyCode::Enter | KeyCode::Esc) {
+                    return_to_menu = true;
+                }
+            }
+            _ => {}
+        }
+
+        Ok((return_to_menu, exit_app))
+    }
+
+    /// Handles keyboard input in usage viewer (static method to avoid borrow issues)
+    /// Returns true if should return to main menu
+    fn handle_usage_viewer_key_static(key: KeyEvent, viewer: &mut UsageViewer) -> Result<bool> {
+        let mut return_to_menu = false;
+
+        match &viewer.state {
+            UsageViewerState::Ready => {
+                // This shouldn't happen as we open immediately, but handle it
+                if matches!(key.code, KeyCode::Enter) {
+                    viewer.open_browser()?;
+                } else if matches!(key.code, KeyCode::Esc) {
+                    return_to_menu = true;
+                }
+            }
+            UsageViewerState::Opening => {
+                // Just wait
+            }
+            UsageViewerState::Success { .. } | UsageViewerState::Error { .. } => {
+                // Any key returns to main menu
+                if matches!(key.code, KeyCode::Enter | KeyCode::Esc) {
+                    return_to_menu = true;
+                }
+            }
         }
 
         Ok(return_to_menu)
