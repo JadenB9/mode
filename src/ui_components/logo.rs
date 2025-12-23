@@ -23,7 +23,7 @@ impl Logo {
 
     /// Returns the width of the logo in characters
     pub fn width() -> u16 {
-        39
+        37
     }
 
     /// Returns a subtitle/tagline for the application
