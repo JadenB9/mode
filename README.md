@@ -54,21 +54,28 @@ A professional, blazing-fast terminal utility manager with a beautiful TUI inter
 
 ### Installation
 
-#### Option 1: Using the install script (Recommended)
+#### One-Liner Installation (Easiest)
 
 ```bash
-git clone https://github.com/JadenB9/mode.git
-cd mode
-./install.sh
-hash -r  # Clear bash cache to recognize the new command
-mode     # Launch MODE
-```
-#### Option 1.1: One-Liner
-```bash
-git clone https://github.com/JadenB9/mode.git && cd mode && ./install.sh && hash -r && mode
+git clone https://github.com/JadenB9/mode.git && cd mode && ./install.sh && source ~/.bashrc && mode
 ```
 
-Or simply open a new terminal and run `mode`.
+**For the truly lazy** (downloads to temp directory, installs, then cleans up):
+
+```bash
+cd /tmp && git clone https://github.com/JadenB9/mode.git && cd mode && ./install.sh && cd ~ && source ~/.bashrc && mode
+```
+
+The install script automatically handles everything:
+- **Installs Rust** if not present (via rustup)
+- **Installs build tools** (gcc/build-essential) if needed
+- **Builds MODE** in release mode
+- **Installs the binary** to `~/.local/bin`
+- **Adds to PATH** if not already there
+- **Sets up shell integration** for seamless alias/bookmark functionality
+- **Returns you to your original directory**
+
+After installation, just type `mode` from anywhere!
 
 #### Option 2: Manual installation
 
@@ -89,14 +96,15 @@ Add this line to your `~/.bashrc` or `~/.zshrc` to make it permanent.
 
 ### Running
 
-After installation, run:
+After installation, simply run:
 
 ```bash
-hash -r  # Only needed if you just installed (clears bash command cache)
 mode
 ```
 
-Or simply open a new terminal and run `mode`.
+**First time after install?** Either:
+- Reload your shell: `source ~/.bashrc` (or `source ~/.zshrc` for zsh)
+- Or open a new terminal window
 
 ## Usage
 
