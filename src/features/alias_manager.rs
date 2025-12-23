@@ -140,19 +140,19 @@ impl AliasManager {
                 if let Some(rc_file) = &self.rc_file {
                     match file_ops::append_alias(rc_file, &name_clone, &command_clone) {
                         Ok(backup_path) => {
-                            let shell_name = self.shell.map(|s| s.name()).unwrap_or("shell");
+                            let shell_name = self.shell.map(|s| s.name()).unwrap_or("bash");
+
                             self.state = AliasManagerState::Success {
                                 message: format!(
-                                    "Success! Alias '{}' added to {}\n\n\
-                                    Backup created: {}\n\n\
-                                    To use the alias, reload your shell:\n  source ~/{}\n\n\
-                                    Or start a new terminal session.",
+                                    "✓ Alias '{}' created successfully!\n\n\
+                                    Backup: {}\n\n\
+                                    Reload your shell with this command:\n\n\
+                                    exec {}\n\n\
+                                    Then you can use: {}",
                                     name_clone,
-                                    rc_file.display(),
                                     backup_path.display(),
-                                    self.shell
-                                        .map(|s| s.rc_file_name())
-                                        .unwrap_or(&shell_name)
+                                    shell_name,
+                                    name_clone
                                 ),
                             };
                         }

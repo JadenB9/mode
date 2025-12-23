@@ -1,18 +1,18 @@
 use ratatui::style::{Color, Modifier, Style};
 
 /// Color scheme for the MODE application
-/// Professional theme with cyan, purple, and green accents
+/// Professional theme with purple and pink accents
 pub struct Theme;
 
 impl Theme {
-    /// Primary color - Cyan (#00D9FF)
-    pub const PRIMARY: Color = Color::Rgb(0, 217, 255);
+    /// Primary color - Dark Purple (#5B21B6)
+    pub const PRIMARY: Color = Color::Rgb(91, 33, 182);
 
-    /// Secondary color - Purple (#A855F7)
+    /// Secondary color - Medium Purple (#A855F7)
     pub const SECONDARY: Color = Color::Rgb(168, 85, 247);
 
-    /// Accent color - Green (#10B981)
-    pub const ACCENT: Color = Color::Rgb(16, 185, 129);
+    /// Accent color - Light Purple/Pink (#E879F9)
+    pub const ACCENT: Color = Color::Rgb(232, 121, 249);
 
     /// Background - Dark (#1E1E2E)
     pub const BACKGROUND: Color = Color::Rgb(30, 30, 46);
@@ -20,14 +20,14 @@ impl Theme {
     /// Text - Light Gray (#CDD6F4)
     pub const TEXT: Color = Color::Rgb(205, 214, 244);
 
-    /// Selected item - Bright Cyan
-    pub const SELECTED: Color = Color::Rgb(0, 255, 255);
+    /// Selected item - Bright Purple
+    pub const SELECTED: Color = Color::Rgb(168, 85, 247);
 
     /// Error - Red (#F38BA8)
     pub const ERROR: Color = Color::Rgb(243, 139, 168);
 
-    /// Success - Green (#A6E3A1)
-    pub const SUCCESS: Color = Color::Rgb(166, 227, 161);
+    /// Success - Light Purple/Pink (#E879F9)
+    pub const SUCCESS: Color = Color::Rgb(232, 121, 249);
 
     /// Border color
     pub const BORDER: Color = Color::Rgb(108, 112, 134);
