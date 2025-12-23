@@ -2,30 +2,107 @@
 
 ## Quick Start
 
-### 1. Build the Project
+### Recommended: Use the Install Script
+
+```bash
+git clone https://github.com/JadenB9/mode.git
+cd mode
+./install.sh
+source ~/.bashrc  # Reload shell (or open a new terminal)
+mode              # Launch MODE
+```
+
+The install script automatically:
+- Builds MODE in release mode
+- Installs the binary to `~/.local/bin`
+- Sets up shell integration automatically
+- Configures your `.bashrc` or `.zshrc` with the wrapper function
+
+### Manual Installation
+
+If you prefer to install manually:
+
+#### 1. Build the Project
 ```bash
 cargo build --release
 ```
 
-### 2. Setup Shell Integration (Recommended)
+#### 2. Install the Binary
+```bash
+cp target/release/mode ~/.local/bin/
+chmod +x ~/.local/bin/mode
+```
 
-For seamless integration where aliases and bookmarks work immediately without manual shell reloading:
+Make sure `~/.local/bin` is in your PATH:
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+```
 
-#### For Bash Users
+#### 3. Setup Shell Integration (Optional but Recommended)
+
+Shell integration enables automatic shell reloading after creating aliases and bookmarks.
+
+##### For Bash Users
 Add this to your `~/.bashrc`:
 ```bash
-# Mode shell integration
-source /path/to/mode/mode-wrapper.sh
+# Mode shell integration - auto-reload after creating aliases/bookmarks
+mode() {
+    local cmd_file="$HOME/.mode_exit_cmd"
+
+    # Remove old command file
+    rm -f "$cmd_file"
+
+    # Run mode using the installed binary
+    command mode "$@"
+    local exit_code=$?
+
+    # Check if mode wrote an exit command
+    if [ -f "$cmd_file" ]; then
+        local exit_cmd
+        exit_cmd=$(cat "$cmd_file")
+        rm -f "$cmd_file"
+
+        if [ -n "$exit_cmd" ]; then
+            eval "$exit_cmd"
+            echo "✓ Shell configuration reloaded"
+        fi
+    fi
+
+    return $exit_code
+}
 ```
 
-#### For Zsh Users
+##### For Zsh Users
 Add this to your `~/.zshrc`:
 ```bash
-# Mode shell integration
-source /path/to/mode/mode-wrapper.zsh
+# Mode shell integration - auto-reload after creating aliases/bookmarks
+mode() {
+    local cmd_file="$HOME/.mode_exit_cmd"
+
+    # Remove old command file
+    rm -f "$cmd_file"
+
+    # Run mode using the installed binary
+    command mode "$@"
+    local exit_code=$?
+
+    # Check if mode wrote an exit command
+    if [ -f "$cmd_file" ]; then
+        local exit_cmd
+        exit_cmd=$(cat "$cmd_file")
+        rm -f "$cmd_file"
+
+        if [ -n "$exit_cmd" ]; then
+            eval "$exit_cmd"
+            echo "✓ Shell configuration reloaded"
+        fi
+    fi
+
+    return $exit_code
+}
 ```
 
-#### Reload Your Shell
+#### 4. Reload Your Shell
 ```bash
 # For Bash
 source ~/.bashrc
@@ -34,7 +111,7 @@ source ~/.bashrc
 source ~/.zshrc
 ```
 
-### 3. Run Mode
+#### 5. Run Mode
 ```bash
 mode
 ```
