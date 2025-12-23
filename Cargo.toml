@@ -1,0 +1,47 @@
+[package]
+name = "mode"
+version = "0.1.0"
+edition = "2021"
+authors = ["JadenB9"]
+description = "A professional terminal utility manager with TUI interface"
+license = "MIT"
+repository = "https://github.com/JadenB9/mode"
+keywords = ["cli", "tui", "terminal", "utility"]
+categories = ["command-line-utilities"]
+
+[dependencies]
+# TUI Framework
+ratatui = "0.28"
+crossterm = "0.28"
+
+# Error handling
+anyhow = "1.0"
+thiserror = "1.0"
+
+# File operations
+tempfile = "3.8"
+
+# Date/time for backups
+chrono = "0.4"
+
+# Shell environment detection
+which = "6.0"
+
+# Serialization (for future config files)
+serde = { version = "1.0", features = ["derive"] }
+toml = "0.8"
+
+[dev-dependencies]
+assert_cmd = "2.0"
+predicates = "3.0"
+tempfile = "3.8"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
+
+[[bin]]
+name = "mode"
+path = "src/main.rs"
