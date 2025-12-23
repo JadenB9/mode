@@ -61,6 +61,10 @@ git clone https://github.com/JadenB9/mode.git
 cd mode
 ./install.sh
 ```
+#### Option 1.1: One-Liner
+```bash
+git clone https://github.com/JadenB9/mode.git && cd mode && ./install.sh
+```
 
 #### Option 2: Manual installation
 
