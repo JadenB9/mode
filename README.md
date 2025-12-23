@@ -65,7 +65,7 @@ mode     # Launch MODE
 ```
 #### Option 1.1: One-Liner
 ```bash
-git clone https://github.com/JadenB9/mode.git && cd mode && ./install.sh
+git clone https://github.com/JadenB9/mode.git && cd mode && ./install.sh && hash -r && mode
 ```
 
 Or simply open a new terminal and run `mode`.
