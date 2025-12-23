@@ -60,11 +60,15 @@ A professional, blazing-fast terminal utility manager with a beautiful TUI inter
 git clone https://github.com/JadenB9/mode.git
 cd mode
 ./install.sh
+hash -r  # Clear bash cache to recognize the new command
+mode     # Launch MODE
 ```
 #### Option 1.1: One-Liner
 ```bash
 git clone https://github.com/JadenB9/mode.git && cd mode && ./install.sh
 ```
+
+Or simply open a new terminal and run `mode`.
 
 #### Option 2: Manual installation
 
@@ -85,11 +89,14 @@ Add this line to your `~/.bashrc` or `~/.zshrc` to make it permanent.
 
 ### Running
 
-Simply run:
+After installation, run:
 
 ```bash
+hash -r  # Only needed if you just installed (clears bash command cache)
 mode
 ```
+
+Or simply open a new terminal and run `mode`.
 
 ## Usage
 
