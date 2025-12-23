@@ -157,25 +157,27 @@ fi
 # Return to original directory
 cd "$ORIGINAL_DIR"
 
-echo ""
-echo "╔════════════════════════════════════════╗"
-echo "║    Installation Complete!              ║"
-echo "╚════════════════════════════════════════╝"
-echo ""
-echo "MODE has been successfully installed!"
-echo ""
+# Export variables for quick-install.sh to use
+export MODE_INSTALL_COMPLETE=1
+export MODE_RC_FILE="${RC_FILE:-$HOME/.bashrc}"
 
-if [ "$PATH_ADDED" = true ] || [ -n "$WRAPPER_FILE" ]; then
-    echo "To start using MODE, run:"
+# Only show completion message if run directly (not from quick-install.sh)
+if [ -z "$QUICK_INSTALL_MODE" ]; then
     echo ""
-    echo "  source $RC_FILE"
-    echo "  mode"
+    echo "╔════════════════════════════════════════╗"
+    echo "║    Installation Complete!              ║"
+    echo "╚════════════════════════════════════════╝"
     echo ""
-    echo "Or open a new terminal and run: mode"
-else
-    echo "To start using MODE, simply run: mode"
+    echo "MODE has been successfully installed!"
+    echo ""
+
+    if [ "$PATH_ADDED" = true ] || [ -n "$WRAPPER_FILE" ]; then
+        echo "To start using MODE, run:"
+        echo ""
+        echo "  source $RC_FILE && mode"
+        echo ""
+    else
+        echo "MODE is ready! Run: mode"
+    fi
+    echo ""
 fi
-
-echo ""
-echo "You are back in your original directory: $ORIGINAL_DIR"
-echo ""
