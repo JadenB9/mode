@@ -54,12 +54,12 @@ impl MenuItem {
             MenuItem::Bookmark => "Bookmark Directory",
             MenuItem::UsageViewer => "Usage Viewer",
             MenuItem::Scanner => "Port Scanner",
-            MenuItem::EnvManager => "Environment Variables",
-            MenuItem::PathManager => "PATH Manager",
-            MenuItem::SshManager => "SSH Config",
-            MenuItem::GitShortcuts => "Git Shortcuts",
-            MenuItem::SystemInfo => "System Info",
-            MenuItem::Settings => "Settings",
+            MenuItem::EnvManager => "Coming soon",
+            MenuItem::PathManager => "Coming soon",
+            MenuItem::SshManager => "Coming soon",
+            MenuItem::GitShortcuts => "Coming soon",
+            MenuItem::SystemInfo => "Coming soon",
+            MenuItem::Settings => "Coming soon",
         }
     }
 
@@ -67,16 +67,16 @@ impl MenuItem {
     pub fn description(&self) -> &'static str {
         match self {
             MenuItem::AliasManager => "Create and manage shell aliases with validation and backups",
-            MenuItem::ProcessManager => "Kill lingering development server processes (cursor, claude-code, vite, etc.)",
-            MenuItem::Bookmark => "Quickly save and navigate to current directory using 'temp' alias",
+            MenuItem::ProcessManager => "Kill lingering dev servers (cursor, claude-code, vite, etc.)",
+            MenuItem::Bookmark => "Save and navigate to current directory using 'temp' alias",
             MenuItem::UsageViewer => "Open Claude API usage dashboard in your browser",
             MenuItem::Scanner => "Scan network ports with service detection and custom ranges",
-            MenuItem::EnvManager => "View, edit, and manage environment variables (coming soon)",
-            MenuItem::PathManager => "Organize and clean up your PATH with validation (coming soon)",
-            MenuItem::SshManager => "Manage SSH host configurations and connection settings (coming soon)",
-            MenuItem::GitShortcuts => "Create git aliases and shortcuts with templates (coming soon)",
-            MenuItem::SystemInfo => "Monitor CPU, memory, disk usage and system resources (coming soon)",
-            MenuItem::Settings => "Customize themes, shortcuts, and app preferences (coming soon)",
+            MenuItem::EnvManager => "View, edit, and manage environment variables",
+            MenuItem::PathManager => "Organize and clean up your PATH with validation",
+            MenuItem::SshManager => "Manage SSH host configurations and connection settings",
+            MenuItem::GitShortcuts => "Create git aliases and shortcuts with templates",
+            MenuItem::SystemInfo => "Monitor CPU, memory, disk usage and system resources",
+            MenuItem::Settings => "Customize themes, shortcuts, and app preferences",
         }
     }
 

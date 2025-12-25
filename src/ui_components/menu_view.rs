@@ -67,7 +67,7 @@ fn render_menu_items(frame: &mut Frame, area: Rect, menu_state: &MenuState) {
 
             let prefix = if is_selected { "▸ " } else { "  " };
 
-            let style = if is_selected {
+            let title_style = if is_selected {
                 Theme::menu_item_selected()
             } else if is_active {
                 Theme::menu_item_active()
@@ -75,15 +75,25 @@ fn render_menu_items(frame: &mut Frame, area: Rect, menu_state: &MenuState) {
                 Theme::menu_item_placeholder()
             };
 
-            let description = if !is_active {
-                " (Coming soon)"
+            let desc_style = if is_selected {
+                Theme::help() // Lighter color for description
             } else {
-                ""
+                Theme::dim()
             };
 
-            let content = format!("{}{}{}", prefix, item.name(), description);
+            // Title line
+            let title_line = Line::from(Span::styled(
+                format!("{}{}", prefix, item.name()),
+                title_style,
+            ));
 
-            ListItem::new(Line::from(Span::styled(content, style)))
+            // Description line (indented to align with title)
+            let description_line = Line::from(vec![
+                Span::styled("  ", Theme::dim()),
+                Span::styled(item.description(), desc_style),
+            ]);
+
+            ListItem::new(vec![title_line, description_line])
         })
         .collect();
 
