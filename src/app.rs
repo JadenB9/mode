@@ -415,6 +415,23 @@ impl App {
                     _ => {}
                 }
             }
+            ScannerState::EnteringPortRange { .. } => {
+                match key.code {
+                    KeyCode::Char(c) => {
+                        scanner.handle_port_range_char(c);
+                    }
+                    KeyCode::Backspace => {
+                        scanner.handle_port_range_backspace();
+                    }
+                    KeyCode::Enter => {
+                        scanner.advance_from_port_range();
+                    }
+                    KeyCode::Esc => {
+                        scanner.go_back();
+                    }
+                    _ => {}
+                }
+            }
             ScannerState::SelectingOptions { .. } => {
                 match key.code {
                     KeyCode::Up | KeyCode::Char('k') => {

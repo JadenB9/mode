@@ -42,21 +42,58 @@ A professional, blazing-fast terminal utility manager with a beautiful TUI inter
   - Quick access to API metrics
 
 - **Port Scanner**: Network port scanning tool
-  - Quick scan of common ports
+  - Quick scan of common ports (14 ports)
   - Standard scan of top 100 ports
   - Full scan of all 65535 ports
-  - Custom port range scanning
+  - Custom port range scanning with flexible syntax
+  - Target validation for IP addresses and hostnames
   - Service detection for identified ports
   - Save results to file
   - Beautiful results display with scrolling
 
 ### Coming Soon
 
-- Environment Variables Manager
-- PATH Manager
-- SSH Config Manager
-- Git Shortcuts Manager
-- Settings & Configuration
+- **Environment Variables Manager**: Manage and edit environment variables
+  - View all environment variables in a searchable list
+  - Add, edit, and delete environment variables
+  - Automatic backup of shell configuration files
+  - Support for both session and persistent variables
+
+- **PATH Manager**: Organize and clean up your PATH
+  - View all PATH entries with validation
+  - Add or remove directories from PATH
+  - Detect and highlight non-existent paths
+  - Reorder PATH entries for priority management
+
+- **SSH Config Manager**: Manage SSH host configurations
+  - View and edit SSH config entries
+  - Add new hosts with templates
+  - Test connections and validate configurations
+  - Organize hosts by groups or tags
+
+- **Git Shortcuts Manager**: Create and manage git aliases and shortcuts
+  - Pre-built templates for common git workflows
+  - Custom git alias creation
+  - Integration with global git config
+  - Visual git command builder
+
+- **System Info Display**: Quick overview of system resources
+  - CPU, memory, and disk usage
+  - Network interface information
+  - Running processes summary
+  - System uptime and load averages
+
+- **Dotfiles Backup**: Backup and restore configuration files
+  - Automated backup of dotfiles and configs
+  - Version control integration
+  - Selective restore of specific files
+  - Cloud sync support for backups
+
+- **Settings & Configuration**: Customize MODE behavior
+  - Theme customization
+  - Keyboard shortcut configuration
+  - Default behaviors and preferences
+  - Import/export settings
 
 ## Quick Start
 

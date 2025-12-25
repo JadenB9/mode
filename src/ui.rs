@@ -655,6 +655,42 @@ fn render_scanner(frame: &mut Frame, scanner: &crate::features::Scanner) {
                 .block(Block::default().borders(Borders::NONE));
             frame.render_widget(help_paragraph, chunks[1]);
         }
+        ScannerState::EnteringPortRange { .. } => {
+            // Create layout with dialog and help text
+            let chunks = Layout::default()
+                .direction(Direction::Vertical)
+                .constraints([
+                    Constraint::Min(10),   // Dialog
+                    Constraint::Length(3), // Help text
+                ])
+                .split(area);
+
+            let prompt = scanner.get_prompt();
+            let input = scanner.get_input();
+            let cursor_pos = input.len();
+
+            input_dialog::render_input_dialog(
+                frame,
+                chunks[0],
+                "Port Scanner",
+                &prompt,
+                &input,
+                cursor_pos,
+                false,
+            );
+
+            // Render help text
+            let help_text = Line::from(vec![
+                Span::styled("Enter", Theme::accent()),
+                Span::styled(": Continue  ", Theme::help()),
+                Span::styled("ESC", Theme::accent()),
+                Span::styled(": Back", Theme::help()),
+            ]);
+            let help_paragraph = Paragraph::new(help_text)
+                .alignment(Alignment::Center)
+                .block(Block::default().borders(Borders::NONE));
+            frame.render_widget(help_paragraph, chunks[1]);
+        }
         ScannerState::SelectingOptions { selected, .. } => {
             let options = ScanOption::all();
             let selected_idx = *selected;
