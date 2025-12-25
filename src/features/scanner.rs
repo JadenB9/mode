@@ -9,6 +9,8 @@ pub enum ScannerState {
     SelectingScanType { selected: usize },
     /// Entering target IP or hostname
     EnteringTarget { scan_type: ScanType, input: String },
+    /// Entering custom port range (only for CustomRange scan type)
+    EnteringPortRange { target: String, input: String },
     /// Selecting scan options
     SelectingOptions {
         scan_type: ScanType,
@@ -16,6 +18,7 @@ pub enum ScannerState {
         selected: usize,
         service_detection: bool,
         save_to_file: bool,
+        custom_ports: Option<Vec<u16>>,
     },
     /// Confirming scan parameters
     Confirming {
@@ -23,6 +26,7 @@ pub enum ScannerState {
         target: String,
         service_detection: bool,
         save_to_file: bool,
+        custom_ports: Option<Vec<u16>>,
     },
     /// Scanning in progress
     Scanning {
@@ -32,6 +36,7 @@ pub enum ScannerState {
         total: usize,
         service_detection: bool,
         save_to_file: bool,
+        custom_ports: Option<Vec<u16>>,
     },
     /// Viewing results
     ViewingResults {
@@ -252,23 +257,179 @@ impl Scanner {
         }
     }
 
-    /// Advances from target input to options
+    /// Validates target format (IP address or hostname)
+    fn validate_target(target: &str) -> Result<()> {
+        if target.is_empty() {
+            return Err(crate::utils::ModeError::Generic("Target cannot be empty".to_string()));
+        }
+
+        // Check if it's a valid IP address
+        if target.parse::<IpAddr>().is_ok() {
+            return Ok(());
+        }
+
+        // Check if it's a valid hostname format
+        // Hostname rules: alphanumeric, hyphens, dots, 1-253 chars, labels 1-63 chars
+        if target.len() > 253 {
+            return Err(crate::utils::ModeError::Generic("Hostname too long (max 253 characters)".to_string()));
+        }
+
+        let parts: Vec<&str> = target.split('.').collect();
+        for part in parts {
+            if part.is_empty() || part.len() > 63 {
+                return Err(crate::utils::ModeError::Generic("Invalid hostname format".to_string()));
+            }
+            if !part.chars().all(|c| c.is_alphanumeric() || c == '-') {
+                return Err(crate::utils::ModeError::Generic("Invalid hostname format (only alphanumeric and hyphens allowed)".to_string()));
+            }
+            if part.starts_with('-') || part.ends_with('-') {
+                return Err(crate::utils::ModeError::Generic("Invalid hostname format (cannot start or end with hyphen)".to_string()));
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Parses port range input (e.g., "1-1000", "80,443,8080", "1-100,443,8080-9000")
+    fn parse_port_range(input: &str) -> Result<Vec<u16>> {
+        let mut ports = Vec::new();
+
+        for part in input.split(',') {
+            let part = part.trim();
+            if part.contains('-') {
+                // Range format: "1-1000"
+                let range_parts: Vec<&str> = part.split('-').collect();
+                if range_parts.len() != 2 {
+                    return Err(crate::utils::ModeError::Generic(
+                        format!("Invalid port range format: '{}'", part)
+                    ));
+                }
+
+                let start: u16 = range_parts[0].trim().parse()
+                    .map_err(|_| crate::utils::ModeError::Generic(
+                        format!("Invalid port number: '{}'", range_parts[0])
+                    ))?;
+                let end: u16 = range_parts[1].trim().parse()
+                    .map_err(|_| crate::utils::ModeError::Generic(
+                        format!("Invalid port number: '{}'", range_parts[1])
+                    ))?;
+
+                if start > end {
+                    return Err(crate::utils::ModeError::Generic(
+                        "Start port must be less than or equal to end port".to_string()
+                    ));
+                }
+
+                if start == 0 {
+                    return Err(crate::utils::ModeError::Generic(
+                        "Port numbers must be between 1 and 65535".to_string()
+                    ));
+                }
+
+                for port in start..=end {
+                    if !ports.contains(&port) {
+                        ports.push(port);
+                    }
+                }
+            } else {
+                // Single port
+                let port: u16 = part.parse()
+                    .map_err(|_| crate::utils::ModeError::Generic(
+                        format!("Invalid port number: '{}'", part)
+                    ))?;
+
+                if port == 0 {
+                    return Err(crate::utils::ModeError::Generic(
+                        "Port numbers must be between 1 and 65535".to_string()
+                    ));
+                }
+
+                if !ports.contains(&port) {
+                    ports.push(port);
+                }
+            }
+        }
+
+        if ports.is_empty() {
+            return Err(crate::utils::ModeError::Generic(
+                "No valid ports specified".to_string()
+            ));
+        }
+
+        ports.sort();
+        Ok(ports)
+    }
+
+    /// Advances from target input to options or port range input
     pub fn advance_to_options(&mut self) {
         if let ScannerState::EnteringTarget { scan_type, input } = self.state.clone() {
-            if input.trim().is_empty() {
+            let target = input.trim().to_string();
+
+            // Validate target format
+            if let Err(e) = Self::validate_target(&target) {
                 self.state = ScannerState::Error {
-                    message: "Target cannot be empty".to_string(),
+                    message: format!("{}", e),
                 };
                 return;
             }
 
-            self.state = ScannerState::SelectingOptions {
-                scan_type,
-                target: input.trim().to_string(),
-                selected: 0,
-                service_detection: false,
-                save_to_file: false,
-            };
+            // If custom range, go to port range input
+            if scan_type == ScanType::CustomRange {
+                self.state = ScannerState::EnteringPortRange {
+                    target,
+                    input: String::new(),
+                };
+            } else {
+                self.state = ScannerState::SelectingOptions {
+                    scan_type,
+                    target,
+                    selected: 0,
+                    service_detection: false,
+                    save_to_file: false,
+                    custom_ports: None,
+                };
+            }
+        }
+    }
+
+    /// Advances from port range input to options (only for CustomRange)
+    pub fn advance_from_port_range(&mut self) {
+        if let ScannerState::EnteringPortRange { target, input } = self.state.clone() {
+            // Parse and validate port range
+            match Self::parse_port_range(&input) {
+                Ok(ports) => {
+                    self.state = ScannerState::SelectingOptions {
+                        scan_type: ScanType::CustomRange,
+                        target,
+                        selected: 0,
+                        service_detection: false,
+                        save_to_file: false,
+                        custom_ports: Some(ports),
+                    };
+                }
+                Err(e) => {
+                    self.state = ScannerState::Error {
+                        message: format!("{}", e),
+                    };
+                }
+            }
+        }
+    }
+
+    /// Handles character input for port range
+    pub fn handle_port_range_char(&mut self, c: char) {
+        if let ScannerState::EnteringPortRange { input, .. } = &mut self.state {
+            // Only allow digits, comma, hyphen, and space
+            if c.is_ascii_digit() || c == ',' || c == '-' || c == ' ' {
+                input.push(c);
+            }
+        }
+    }
+
+    /// Handles backspace in port range input
+    pub fn handle_port_range_backspace(&mut self) {
+        if let ScannerState::EnteringPortRange { input, .. } = &mut self.state {
+            input.pop();
         }
     }
 
@@ -296,6 +457,7 @@ impl Scanner {
             target,
             service_detection,
             save_to_file,
+            custom_ports,
             ..
         } = self.state.clone()
         {
@@ -304,6 +466,7 @@ impl Scanner {
                 target,
                 service_detection,
                 save_to_file,
+                custom_ports,
             };
         }
     }
@@ -315,9 +478,11 @@ impl Scanner {
             target,
             service_detection,
             save_to_file,
+            custom_ports,
         } = self.state.clone()
         {
-            let ports = scan_type.get_ports();
+            // Get ports to scan (use custom_ports if provided, otherwise use scan_type defaults)
+            let ports = custom_ports.clone().unwrap_or_else(|| scan_type.get_ports());
             let total = ports.len();
 
             self.state = ScannerState::Scanning {
@@ -327,6 +492,7 @@ impl Scanner {
                 total,
                 service_detection,
                 save_to_file,
+                custom_ports: custom_ports.clone(),
             };
 
             // Perform the actual scan
@@ -504,19 +670,33 @@ impl Scanner {
                 let idx = ScanType::all().iter().position(|st| st == scan_type).unwrap_or(0);
                 self.state = ScannerState::SelectingScanType { selected: idx };
             }
-            ScannerState::SelectingOptions { scan_type, .. } => {
+            ScannerState::EnteringPortRange { target, .. } => {
                 self.state = ScannerState::EnteringTarget {
-                    scan_type: *scan_type,
-                    input: String::new(),
+                    scan_type: ScanType::CustomRange,
+                    input: target.clone(),
                 };
             }
-            ScannerState::Confirming { scan_type, target, service_detection, save_to_file } => {
+            ScannerState::SelectingOptions { scan_type, target, .. } => {
+                if *scan_type == ScanType::CustomRange {
+                    self.state = ScannerState::EnteringPortRange {
+                        target: target.clone(),
+                        input: String::new(),
+                    };
+                } else {
+                    self.state = ScannerState::EnteringTarget {
+                        scan_type: *scan_type,
+                        input: String::new(),
+                    };
+                }
+            }
+            ScannerState::Confirming { scan_type, target, service_detection, save_to_file, custom_ports } => {
                 self.state = ScannerState::SelectingOptions {
                     scan_type: *scan_type,
                     target: target.clone(),
                     selected: 0,
                     service_detection: *service_detection,
                     save_to_file: *save_to_file,
+                    custom_ports: custom_ports.clone(),
                 };
             }
             _ => {}
@@ -544,6 +724,7 @@ impl Scanner {
     pub fn get_input(&self) -> String {
         match &self.state {
             ScannerState::EnteringTarget { input, .. } => input.clone(),
+            ScannerState::EnteringPortRange { input, .. } => input.clone(),
             _ => String::new(),
         }
     }
@@ -556,6 +737,9 @@ impl Scanner {
             }
             ScannerState::EnteringTarget { scan_type, .. } => {
                 format!("{}\nEnter target IP address or hostname:", scan_type.name())
+            }
+            ScannerState::EnteringPortRange { .. } => {
+                "Enter port range (e.g., '80,443' or '1-1000' or '80,443,8000-9000'):".to_string()
             }
             ScannerState::SelectingOptions { .. } => {
                 "Configure scan options (↑/↓ to navigate, Space to toggle, Enter to continue):".to_string()
@@ -580,11 +764,16 @@ impl Scanner {
                 target,
                 service_detection,
                 save_to_file,
+                custom_ports,
             } => {
+                let port_count = custom_ports.as_ref()
+                    .map(|p| p.len())
+                    .unwrap_or_else(|| scan_type.get_ports().len());
+
                 let data = vec![
                     ("Scan Type".to_string(), scan_type.name().to_string()),
                     ("Target".to_string(), target.clone()),
-                    ("Ports".to_string(), format!("{} ports", scan_type.get_ports().len())),
+                    ("Ports".to_string(), format!("{} ports", port_count)),
                     (
                         "Service Detection".to_string(),
                         if *service_detection { "Enabled" } else { "Disabled" }.to_string(),
