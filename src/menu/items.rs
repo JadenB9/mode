@@ -19,14 +19,17 @@ pub enum MenuItem {
 
 impl MenuItem {
     /// Returns all menu items in display order
+    /// Active features first, then coming soon items
     pub fn all() -> Vec<MenuItem> {
         vec![
+            // Active features
             MenuItem::AliasManager,
             MenuItem::ProcessManager,
             MenuItem::Bookmark,
             MenuItem::UsageViewer,
-            MenuItem::GitShortcuts,
             MenuItem::Scanner,
+            // Coming soon
+            MenuItem::GitShortcuts,
             MenuItem::Settings,
         ]
     }
