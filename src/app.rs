@@ -1,6 +1,6 @@
 use crate::{
     event::Event,
-    features::{AliasManager, AliasManagerState, BookmarkManager, BookmarkManagerState, PlaceholderFeature, ProcessManager, ProcessManagerState, UsageViewer, UsageViewerState},
+    features::{AliasManager, AliasManagerState, BookmarkManager, BookmarkManagerState, PlaceholderFeature, ProcessManager, ProcessManagerState, Scanner, ScannerState, UsageViewer, UsageViewerState},
     menu::{MenuItem, MenuState},
     utils::Result,
 };
@@ -13,6 +13,7 @@ pub enum ActiveFeature {
     ProcessManager(ProcessManager),
     BookmarkManager(BookmarkManager),
     UsageViewer(UsageViewer),
+    Scanner(Scanner),
     Placeholder(PlaceholderFeature),
 }
 
@@ -115,6 +116,9 @@ impl App {
                     ActiveFeature::UsageViewer(viewer) => {
                         should_return_to_menu = Self::handle_usage_viewer_key_static(key, viewer)?;
                     }
+                    ActiveFeature::Scanner(scanner) => {
+                        should_return_to_menu = Self::handle_scanner_key_static(key, scanner)?;
+                    }
                     ActiveFeature::Placeholder(_) => {
                         // Just ESC to go back
                         if matches!(key.code, KeyCode::Esc) {
@@ -192,6 +196,10 @@ impl App {
                         self.error_message = Some(format!("Failed to open browser: {}", e));
                     }
                     self.state = AppState::FeatureActive(ActiveFeature::UsageViewer(viewer));
+                }
+                MenuItem::Scanner => {
+                    let scanner = Scanner::new();
+                    self.state = AppState::FeatureActive(ActiveFeature::Scanner(scanner));
                 }
                 _ => {
                     // Should not happen as we check is_active()
@@ -357,6 +365,105 @@ impl App {
                 // Just wait
             }
             UsageViewerState::Success { .. } | UsageViewerState::Error { .. } => {
+                // Any key returns to main menu
+                if matches!(key.code, KeyCode::Enter | KeyCode::Esc) {
+                    return_to_menu = true;
+                }
+            }
+        }
+
+        Ok(return_to_menu)
+    }
+
+    /// Handles keyboard input in scanner (static method to avoid borrow issues)
+    /// Returns true if should return to main menu
+    fn handle_scanner_key_static(key: KeyEvent, scanner: &mut Scanner) -> Result<bool> {
+        let mut return_to_menu = false;
+
+        match &scanner.state {
+            ScannerState::SelectingScanType { .. } => {
+                match key.code {
+                    KeyCode::Up | KeyCode::Char('k') => {
+                        scanner.previous();
+                    }
+                    KeyCode::Down | KeyCode::Char('j') => {
+                        scanner.next();
+                    }
+                    KeyCode::Enter => {
+                        scanner.confirm_scan_type();
+                    }
+                    KeyCode::Esc => {
+                        return_to_menu = true;
+                    }
+                    _ => {}
+                }
+            }
+            ScannerState::EnteringTarget { .. } => {
+                match key.code {
+                    KeyCode::Char(c) => {
+                        scanner.handle_char(c);
+                    }
+                    KeyCode::Backspace => {
+                        scanner.handle_backspace();
+                    }
+                    KeyCode::Enter => {
+                        scanner.advance_to_options();
+                    }
+                    KeyCode::Esc => {
+                        scanner.go_back();
+                    }
+                    _ => {}
+                }
+            }
+            ScannerState::SelectingOptions { .. } => {
+                match key.code {
+                    KeyCode::Up | KeyCode::Char('k') => {
+                        scanner.previous();
+                    }
+                    KeyCode::Down | KeyCode::Char('j') => {
+                        scanner.next();
+                    }
+                    KeyCode::Char(' ') => {
+                        scanner.toggle_option();
+                    }
+                    KeyCode::Enter => {
+                        scanner.advance_to_confirmation();
+                    }
+                    KeyCode::Esc => {
+                        scanner.go_back();
+                    }
+                    _ => {}
+                }
+            }
+            ScannerState::Confirming { .. } => {
+                match key.code {
+                    KeyCode::Char('y') | KeyCode::Char('Y') => {
+                        scanner.execute_scan();
+                    }
+                    KeyCode::Char('n') | KeyCode::Char('N') | KeyCode::Esc => {
+                        scanner.go_back();
+                    }
+                    _ => {}
+                }
+            }
+            ScannerState::Scanning { .. } => {
+                // Can't interrupt scanning
+            }
+            ScannerState::ViewingResults { .. } => {
+                match key.code {
+                    KeyCode::Up | KeyCode::Char('k') => {
+                        scanner.previous();
+                    }
+                    KeyCode::Down | KeyCode::Char('j') => {
+                        scanner.next();
+                    }
+                    KeyCode::Enter | KeyCode::Esc => {
+                        return_to_menu = true;
+                    }
+                    _ => {}
+                }
+            }
+            ScannerState::Success { .. } | ScannerState::Error { .. } => {
                 // Any key returns to main menu
                 if matches!(key.code, KeyCode::Enter | KeyCode::Esc) {
                     return_to_menu = true;

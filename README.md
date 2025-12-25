@@ -41,13 +41,21 @@ A professional, blazing-fast terminal utility manager with a beautiful TUI inter
   - Opens usage dashboard in browser
   - Quick access to API metrics
 
+- **Port Scanner**: Network port scanning tool
+  - Quick scan of common ports
+  - Standard scan of top 100 ports
+  - Full scan of all 65535 ports
+  - Custom port range scanning
+  - Service detection for identified ports
+  - Save results to file
+  - Beautiful results display with scrolling
+
 ### Coming Soon
 
 - Environment Variables Manager
 - PATH Manager
 - SSH Config Manager
 - Git Shortcuts Manager
-- System Info Display
 - Settings & Configuration
 
 ## Quick Start
