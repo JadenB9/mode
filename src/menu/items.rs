@@ -11,8 +11,8 @@ pub enum MenuItem {
     UsageViewer,
     /// Git Shortcuts - Placeholder for managing git aliases
     GitShortcuts,
-    /// System Info - Placeholder for displaying system information
-    SystemInfo,
+    /// Scanner - Active feature for port scanning
+    Scanner,
     /// Settings - Placeholder for app configuration
     Settings,
 }
@@ -26,7 +26,7 @@ impl MenuItem {
             MenuItem::Bookmark,
             MenuItem::UsageViewer,
             MenuItem::GitShortcuts,
-            MenuItem::SystemInfo,
+            MenuItem::Scanner,
             MenuItem::Settings,
         ]
     }
@@ -39,7 +39,7 @@ impl MenuItem {
             MenuItem::Bookmark => "Bookmark Directory",
             MenuItem::UsageViewer => "Usage Viewer",
             MenuItem::GitShortcuts => "Coming soon",
-            MenuItem::SystemInfo => "Coming soon",
+            MenuItem::Scanner => "Port Scanner",
             MenuItem::Settings => "Coming soon",
         }
     }
@@ -52,14 +52,14 @@ impl MenuItem {
             MenuItem::Bookmark => "Save current directory as 'temp' alias",
             MenuItem::UsageViewer => "View Claude API usage in browser",
             MenuItem::GitShortcuts => "Coming soon",
-            MenuItem::SystemInfo => "Coming soon",
+            MenuItem::Scanner => "Network port scanner with service detection",
             MenuItem::Settings => "Coming soon",
         }
     }
 
     /// Returns whether the menu item is active (implemented)
     pub fn is_active(&self) -> bool {
-        matches!(self, MenuItem::AliasManager | MenuItem::ProcessManager | MenuItem::Bookmark | MenuItem::UsageViewer)
+        matches!(self, MenuItem::AliasManager | MenuItem::ProcessManager | MenuItem::Bookmark | MenuItem::UsageViewer | MenuItem::Scanner)
     }
 
     /// Returns the total number of menu items
