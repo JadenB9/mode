@@ -5,7 +5,7 @@
 **MODE** is a professional terminal utility manager built with Rust and ratatui. It provides a beautiful, fast TUI (Text User Interface) for managing various terminal configurations and utilities.
 
 **Current Version**: 0.1.0
-**Author**: Jaden Butler (JadenB9)
+**Author**: [JadenB9](https://github.com/JadenB9)
 **Repository**: https://github.com/JadenB9/mode
 **License**: MIT
 
@@ -330,9 +330,7 @@ git push origin v0.x.0
 
 ## Contact
 
-- **Author**: Jaden Butler
 - **GitHub**: [@JadenB9](https://github.com/JadenB9)
-- **Email**: jadenb9944@gmail.com
 - **Repository**: https://github.com/JadenB9/mode
 
 ---

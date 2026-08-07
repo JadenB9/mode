@@ -48,8 +48,8 @@ This allows users to install with: `sudo dpkg -i mode_0.1.0_amd64.deb`
 2. **Add deb metadata to Cargo.toml**
    ```toml
    [package.metadata.deb]
-   maintainer = "JadenB9 <jadenb9944@gmail.com>"
-   copyright = "2025, JadenB9 <jadenb9944@gmail.com>"
+   maintainer = "JadenB9"
+   copyright = "2025, JadenB9"
    license-file = ["LICENSE", "4"]
    extended-description = """\
    A professional, blazing-fast terminal utility manager with a beautiful TUI interface. \
